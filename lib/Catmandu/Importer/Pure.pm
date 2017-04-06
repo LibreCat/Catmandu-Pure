@@ -13,6 +13,8 @@ use XML::LibXML::Simple qw(XMLin);
 use Data::Validate::URI qw(is_web_uri);
 use Scalar::Util qw(blessed);
 
+our $VERSION = '0.01';
+
 with 'Catmandu::Importer';
 
 has base     => ( is => 'ro' );
@@ -393,7 +395,7 @@ sub generator {
   Currently documentation describing the REST service can usually be viewed at /ws/doc/ on a host where
   Pure is installed, for instance, http://experts-us.demo.atira.dk/ws/doc/.
   ...
-  
+
 =head1 SYNOPSIS
 
   # From the command line
@@ -408,15 +410,15 @@ sub generator {
   );
 
   my $importer = Catmandu::Importer::Pure->new(%attrs);
-  
+
   my $n = $importer->each(sub {
     my $hashref = $_[0];
     # ...
   });
-  
+
 
   my $importer = Catmandu::Importer::Pure->new(%attrs);
-  
+
 
   # get number of valid and approved publications
   my $count = Catmandu::Importer->new(
@@ -477,7 +479,7 @@ of the root element for each response.
 Handler to transform each record from XML DOM (L<XML::LibXML::Element>) into
 Perl hash.
 
-Handlers can be provided as function reference, an instance of a Perl 
+Handlers can be provided as function reference, an instance of a Perl
 package that implements 'parse', or by a package NAME. Package names should
 be prepended by C<+> or prefixed with C<Catmandu::Importer::Pure::Parser>. E.g
 C<foobar> will create a C<Catmandu::Importer::Pure::Parser::foobar> instance.
@@ -490,28 +492,28 @@ based structure that preserves order and L<Catmandu::Importer::Pure::Parser::raw
 returns the XML as it is.
 
 =item userAgent
- 
+
 HTTP user agent string, set to C<Mozilla/5.0> by default.
- 
+
 =item furl
- 
+
 Instance of L<Furl> or compatible class to fetch URLs with.
 
 =item timeout
 
 Timeout for HTTP requests in seonds. Defaults to 50.
 
-=item trim_text 
+=item trim_text
 
 Optional flag. If true then all text nodes in the REST response are trimmed so that any leading and trailing whitespace is removed before parsing.
 This is useful if you don't want to risk getting leading and trailing whitespace in your data, since Pure doesn't currently clean leading/trailing white space from
 user input. Note that there is a small performance penalty when using this option. Default is false.
 
 =item filter( sub {} )
- 
+
 Optional reference to function that processes the XML response before it is parsed. The argument to the function is a reference to the XML text,
 which is then used to modify it. This is option is normally not needed but can helpful if there is a problem parsing the response due to a bug
-in the REST service, for example. 
+in the REST service, for example.
 
 =back
 
@@ -521,7 +523,7 @@ In addition to methods inherited from Catmandu::Iterable, this module provides t
 
 =over
 
-=item B<url > 
+=item B<url >
 
 Return the current Pure REST request URL (useful for debugging).
 

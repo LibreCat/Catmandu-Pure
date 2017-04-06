@@ -3,6 +3,8 @@ package Catmandu::Importer::Pure::Parser::raw;
 use Catmandu::Sane;
 use Moo;
 
+our $VERSION = '0.01';
+
 sub parse {
     my ($self,$dom) = @_;
 

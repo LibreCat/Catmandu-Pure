@@ -389,39 +389,29 @@ sub generator {
 
   Catmandu::Importer::Pure - Package that imports Pure data.
 
-=head1 DESCRIPTION
-
-  Catmandu::Importer::Pure is a Catmandu package that seamlessly imports data from Elsevier's Pure system using its REST service.
-  Currently documentation describing the REST service can usually be viewed at /ws/doc/ on a host where
-  Pure is installed, for instance, http://experts-us.demo.atira.dk/ws/doc/.
-  ...
-
 =head1 SYNOPSIS
 
   # From the command line
   $ catmandu convert Pure --base https://purehost/ws/rest --endpoint publication
 
   # In Perl
-  use Catmandu::Importer::Pure;
+  use Catmandu;
 
   my %attrs = (
     base => 'http://host/path',
     endpoint => 'publication',
   );
 
-  my $importer = Catmandu::Importer::Pure->new(%attrs);
+  my $importer = Catmandu->importer('Pure', %attrs);
 
   my $n = $importer->each(sub {
     my $hashref = $_[0];
     # ...
   });
 
-
-  my $importer = Catmandu::Importer::Pure->new(%attrs);
-
-
   # get number of valid and approved publications
-  my $count = Catmandu::Importer->new(
+  my $count = Catmandu->importer(
+    'Pure',
     base         => base,
     endpoint     => 'publication',
     fullResponse => 1,
@@ -434,7 +424,12 @@ sub generator {
     }
   )->first->{count};
 
+=head1 DESCRIPTION
 
+  Catmandu::Importer::Pure is a Catmandu package that seamlessly imports data from Elsevier's Pure system using its REST service.
+  Currently documentation describing the REST service can usually be viewed at /ws/doc/ on a host where
+  Pure is installed, for instance, http://experts-us.demo.atira.dk/ws/doc/.
+  ...
 
 =head1 CONFIGURATION
 
@@ -538,5 +533,17 @@ L<Catmandu::Iterable>
 Furl
 
 http://librecat.org
+
+=head1 COPYRIGHT
+
+Copyright 2017- Lund University Library
+
+=head1 AUTHOR
+
+Snorri Briem
+
+=head1 LICENSE
+
+This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
 
 =cut

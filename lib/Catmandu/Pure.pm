@@ -11,10 +11,10 @@ __END__
 
 Catmandu::Pure - A bundle of Catmandu modules for working with data from Pure
 
-=begin HTML
+=head1 SYNOPSIS
 
-
-=end HTML
+  # From the command line
+  $ catmandu convert Pure --base https://purehost/ws/rest --endpoint publication
 
 =head1 MODULES
 
@@ -25,6 +25,18 @@ Catmandu::Pure - A bundle of Catmandu modules for working with data from Pure
 L<Catmandu::Importer::Pure>
 
 =back
+
+=head1 DESCRIPTION
+
+  Catmandu::Importer::Pure is a Catmandu package that seamlessly imports data from Elsevier's Pure system using its REST service.
+  Currently documentation describing the REST service can usually be viewed at /ws/doc/ on a host where
+  Pure is installed, for instance, http://experts-us.demo.atira.dk/ws/doc/.
+  ...
+
+=head1 SEE ALSO
+
+L<Catmandu>,
+L<Catmandu::Importer>
 
 =head1 COPYRIGHT
 

@@ -270,157 +270,160 @@ is_deeply(
     'flatting of options - workflow array'
 );
 
+if ( $ENV{RELEASE_TESTING} ) {
 ############# everything below needs a Pure server
-#Test get results
-my $rec = eval { $pkg->new( %connect_args, endpoint => 'publication' )->first };
-ok( !$@ && $rec, "get results" )
-  or BAIL_OUT "Failed to get any results from base URL $connect_args{base}"
-  . ( $connect_args{user} ? "(user=$connect_args{user})" : '' );
 
-my %bad_base = %connect_args;
-$bad_base{base} =~ s|/rest|/xrest|;
-
-throws_ok { $pkg->new( %bad_base, endpoint => 'person' )->first }
-qr/Status code: 405/, "invalid base path";
-
-#Check REST errors
-throws_ok { $pkg->new( %connect_args, endpoint => '_nothing_' )->first }
-qr/Pure REST Error/, "invalid endpoint";
-
-throws_ok {
-    $pkg->new(
+    #Test get results
+    my $rec = eval { $pkg->new( %connect_args, endpoint => 'publication' )->first };
+    ok( !$@ && $rec, "get results" )
+      or BAIL_OUT "Failed to get any results from base URL $connect_args{base}"
+      . ( $connect_args{user} ? "(user=$connect_args{user})" : '' );
+    
+    my %bad_base = %connect_args;
+    $bad_base{base} =~ s|/rest|/xrest|;
+    
+    throws_ok { $pkg->new( %bad_base, endpoint => 'person' )->first }
+    qr/Status code: 405/, "invalid base path";
+    
+    #Check REST errors
+    throws_ok { $pkg->new( %connect_args, endpoint => '_nothing_' )->first }
+    qr/Pure REST Error/, "invalid endpoint";
+    
+    throws_ok {
+        $pkg->new(
+            %connect_args,
+            endpoint => 'publication',
+            options  => { 'window.size' => 'a10' }
+          )->first
+    } qr/Pure REST Error/, "invalid option";
+    
+    throws_ok {
+        $pkg->new(
+            %connect_args,
+            user     => undef,
+            password => undef,
+            endpoint => 'uploaddownloadinformationrequest.current'
+          )->first
+    } qr/Pure REST Error/, "Needs authentication";
+    
+    #Test handlers
+    $rec = $pkg->new(
+        %connect_args,
+        handler  => 'raw',
+        endpoint => 'publication',
+        options  => { 'window.size' => 1 }
+    )->first;
+    
+    like( $rec, qr/^</, "raw handler" );
+    
+    $rec = $pkg->new(
+        %connect_args,
+        handler  => 'struct',
+        endpoint => 'publication',
+        options  => { 'window.size' => 1 }
+    )->first;
+    
+    ok( $rec->[0] && $rec->[0] eq 'core:content', 'struct handler' );
+    
+    $rec = $pkg->new(
+        %connect_args,
+        handler  => sub             { 'success' },
+        endpoint => 'publication',
+        options  => { 'window.size' => 1 }
+    )->first;
+    
+    is( $rec, 'success', "custom handler" );
+    
+    #Test empty response
+    my $count = $pkg->new(
         %connect_args,
         endpoint => 'publication',
-        options  => { 'window.size' => 'a10' }
-      )->first
-} qr/Pure REST Error/, "invalid option";
-
-throws_ok {
-    $pkg->new(
+        options  => { searchString => '(sdfkjasewrwe)' }
+    )->count;
+    
+    is( $count, 0, "empty results" );
+    
+    $count = $pkg->new(
         %connect_args,
-        user     => undef,
-        password => undef,
-        endpoint => 'uploaddownloadinformationrequest.current'
-      )->first
-} qr/Pure REST Error/, "Needs authentication";
-
-#Test handlers
-$rec = $pkg->new(
-    %connect_args,
-    handler  => 'raw',
-    endpoint => 'publication',
-    options  => { 'window.size' => 1 }
-)->first;
-
-like( $rec, qr/^</, "raw handler" );
-
-$rec = $pkg->new(
-    %connect_args,
-    handler  => 'struct',
-    endpoint => 'publication',
-    options  => { 'window.size' => 1 }
-)->first;
-
-ok( $rec->[0] && $rec->[0] eq 'core:content', 'struct handler' );
-
-$rec = $pkg->new(
-    %connect_args,
-    handler  => sub             { 'success' },
-    endpoint => 'publication',
-    options  => { 'window.size' => 1 }
-)->first;
-
-is( $rec, 'success', "custom handler" );
-
-#Test empty response
-my $count = $pkg->new(
-    %connect_args,
-    endpoint => 'publication',
-    options  => { searchString => '(sdfkjasewrwe)' }
-)->count;
-
-is( $count, 0, "empty results" );
-
-$count = $pkg->new(
-    %connect_args,
-    endpoint     => 'organisation',
-    fullResponse => 1,
-    options      => { window => { offset => 1, 'size' => 2 } }
-)->count;
-
-is( $count, 1, 'full response with window offset and size' );
-
-# organizationCount
-$count = $pkg->new(
-    %connect_args,
-    endpoint     => 'organisation',
-    fullResponse => 1,
-    options      => { 'window.size' => 0 }
-)->first->{GetOrganisationResponse}[0]{count};
-ok( $count > 1, 'count organizations' );
-
-my $offset = $count - 5;
-my $pcount = $pkg->new(
-    %connect_args,
-    endpoint => 'organisation',
-    options  => { window => { offset => $offset } }
-)->count;
-ok( $count == $pcount + $offset, 'get organisations from offset' );
-
-$count = $pkg->new(
-    %connect_args,
-    endpoint     => 'organisation',
-    fullResponse => 1,
-    options      => { window => { offset => 10, 'size' => 2 } }
-)->count;
-
-is( $count, 1, 'full response with window offset and size' );
-
-$rec = $pkg->new( %connect_args, endpoint => 'allowedfamilies' )->first;
-ok( $rec->{family}, 'endpoint allowedfamilies' );
-
-$rec = $pkg->new(
-    %connect_args,
-    endpoint => 'organisation',
-    options  => { 'window.size' => 1 }
-)->first;    # size
-
-ok( $rec->{content}, 'endpoint organisation' );
-
-$rec = $pkg->new( %connect_args, endpoint => 'classificationschemes' )->first;
-
-ok( $rec->{content}, 'endpoint classificationschemes' );
-
-$rec = $pkg->new(
-    %connect_args,
-    endpoint => 'changes.current',
-    options  => { fromDate => '1990-01-22' }
-)->slice( 100, 1 )->first;
-ok( $rec->{change}, 'endpoint changes.current' );
-
-$rec = $pkg->new( %connect_args, endpoint => 'serverMeta', fullResponse => 1 )
-  ->first;
-ok( $rec->{GetServerMetaResponse}, 'endpoint serverMeta' );
-
-#Test filter
-$rec = $pkg->new(
-    %connect_args,
-    endpoint => 'allowedfamilies',
-    filter   => sub { ${ $_[0] } =~ s/family/myfamily/g }
-)->first;
-ok( $rec->{myfamily}, 'endpoint allowedfamilies' );
-
-my $recs = $pkg->new(
-    %connect_args,
-    endpoint => 'organisation',
-    options  => { 'window.size' => 1 }
-)->slice( 0, 2 )->to_array;
-
-ok(
-    $recs->[0]{content}
-      && $recs->[1]{content}
-      && ( $recs->[0]{content}[0]{uuid} ne $recs->[1]{content}[0]{uuid} ),
-    'multi-requests'
-);
+        endpoint     => 'organisation',
+        fullResponse => 1,
+        options      => { window => { offset => 1, 'size' => 2 } }
+    )->count;
+    
+    is( $count, 1, 'full response with window offset and size' );
+    
+    # organizationCount
+    $count = $pkg->new(
+        %connect_args,
+        endpoint     => 'organisation',
+        fullResponse => 1,
+        options      => { 'window.size' => 0 }
+    )->first->{GetOrganisationResponse}[0]{count};
+    ok( $count > 1, 'count organizations' );
+    
+    my $offset = $count - 5;
+    my $pcount = $pkg->new(
+        %connect_args,
+        endpoint => 'organisation',
+        options  => { window => { offset => $offset } }
+    )->count;
+    ok( $count == $pcount + $offset, 'get organisations from offset' );
+    
+    $count = $pkg->new(
+        %connect_args,
+        endpoint     => 'organisation',
+        fullResponse => 1,
+        options      => { window => { offset => 10, 'size' => 2 } }
+    )->count;
+    
+    is( $count, 1, 'full response with window offset and size' );
+    
+    $rec = $pkg->new( %connect_args, endpoint => 'allowedfamilies' )->first;
+    ok( $rec->{family}, 'endpoint allowedfamilies' );
+    
+    $rec = $pkg->new(
+        %connect_args,
+        endpoint => 'organisation',
+        options  => { 'window.size' => 1 }
+    )->first;    # size
+    
+    ok( $rec->{content}, 'endpoint organisation' );
+    
+    $rec = $pkg->new( %connect_args, endpoint => 'classificationschemes' )->first;
+    
+    ok( $rec->{content}, 'endpoint classificationschemes' );
+    
+    $rec = $pkg->new(
+        %connect_args,
+        endpoint => 'changes.current',
+        options  => { fromDate => '1990-01-22' }
+    )->slice( 100, 1 )->first;
+    ok( $rec->{change}, 'endpoint changes.current' );
+    
+    $rec = $pkg->new( %connect_args, endpoint => 'serverMeta', fullResponse => 1 )
+      ->first;
+    ok( $rec->{GetServerMetaResponse}, 'endpoint serverMeta' );
+    
+    #Test filter
+    $rec = $pkg->new(
+        %connect_args,
+        endpoint => 'allowedfamilies',
+        filter   => sub { ${ $_[0] } =~ s/family/myfamily/g }
+    )->first;
+    ok( $rec->{myfamily}, 'endpoint allowedfamilies' );
+    
+    my $recs = $pkg->new(
+        %connect_args,
+        endpoint => 'organisation',
+        options  => { 'window.size' => 1 }
+    )->slice( 0, 2 )->to_array;
+    
+    ok(
+        $recs->[0]{content}
+          && $recs->[1]{content}
+          && ( $recs->[0]{content}[0]{uuid} ne $recs->[1]{content}[0]{uuid} ),
+        'multi-requests'
+    );
+}
 
 done_testing;

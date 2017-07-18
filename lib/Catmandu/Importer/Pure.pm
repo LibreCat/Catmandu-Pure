@@ -534,13 +534,13 @@ Furl
 
 http://librecat.org
 
+=head1 AUTHOR
+
+Snorri Briem E<lt>briem@cpan.orgE<gt>
+
 =head1 COPYRIGHT
 
 Copyright 2017- Lund University Library
-
-=head1 AUTHOR
-
-Snorri Briem
 
 =head1 LICENSE
 

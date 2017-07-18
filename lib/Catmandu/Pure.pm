@@ -38,16 +38,17 @@ L<Catmandu::Importer::Pure>
 L<Catmandu>,
 L<Catmandu::Importer>
 
+=head1 AUTHOR
+
+Snorri Briem E<lt>briem@cpan.orgE<gt>
+
 =head1 COPYRIGHT
 
 Copyright 2017- Lund University Library
 
-=head1 AUTHOR
-
-Snorri Briem
-
 =head1 LICENSE
 
 This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
+See http://dev.perl.org/licenses/ for more information.
 
 =cut

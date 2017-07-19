@@ -9,7 +9,6 @@ use Moo;
 use Carp;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
-use XML::LibXML::Simple qw(XMLin);
 use Data::Validate::URI qw(is_web_uri);
 use Scalar::Util qw(blessed);
 

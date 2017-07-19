@@ -45,8 +45,12 @@
             "Catmandu" : "0.9204",
             "Data::Validate::URI" : "0",
             "Furl" : "0.41",
+            "MIME::Base64" : "0",
+            "Moo" : "1.0",
+            "Scalar::Util" : "1.00",
             "URI::Escape" : "1.60",
             "XML::LibXML::Simple" : "0.91",
+            "XML::Struct" : "0.18",
             "perl" : "v5.10.1"
          }
       },

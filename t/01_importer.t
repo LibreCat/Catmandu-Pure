@@ -26,8 +26,9 @@ if ( !$base_url ) {
 
 my %connect_args = (
     base     => $base_url,
-    user     => $user,
-    password => $password,
+    apiKey   => '324320-34324',
+#    user     => $user,
+#    password => $password,
 );
 
 throws_ok { $pkg->new( endpoint => 'research-outputs' ) }

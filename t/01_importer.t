@@ -31,18 +31,22 @@ my %connect_args = (
 #    password => $password,
 );
 
-throws_ok { $pkg->new( endpoint => 'research-outputs' ) }
-qr/Base URL and endpoint are required/, "required argument (base) missing";
+throws_ok { $pkg->new( endpoint => 'research-outputs', apiKey => '1234' ) }
+qr/Base URL.+ required/, "required argument (base) missing";
+
+throws_ok { $pkg->new( endpoint => 'research-outputs', base => $base_url) }
+qr/apiKey.+ required/, "required argument (apiKey) missing";
 
 throws_ok { $pkg->new( base => $DEFAULT_TEST_BASE ) }
-qr/Base URL and endpoint are required/, "required argument (endpoint) missing";
+qr/endpoint.+required/, "required argument (endpoint) missing";
 
-lives_ok { $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'research-outputs' ) }
+lives_ok { $pkg->new( base => $DEFAULT_TEST_BASE, apiKey => '1234', endpoint => 'research-outputs' ) }
 "required arguments supplied";
 
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
+        apiKey   => '1234',
         endpoint => 'research-outputs',
         user     => 'user'
       )
@@ -52,6 +56,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         user     => 'user',
         password => 'password'
       )
@@ -61,6 +66,7 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         filter   => 'invalid'
       )
 } qr/Invalid filter/, "invalid filter";
@@ -69,6 +75,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         filter   => sub { 1 }
       )
 } "filter provided";
@@ -76,6 +83,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
+        apiKey => '1234',
         endpoint => 'persons',
         timeout  => 100
       )
@@ -85,6 +93,7 @@ throws_ok {
     $pkg->new(
         base     => 'notvalid',
         endpoint => 'research-outputs',
+        apiKey => '1234',
       )
 } qr/Invalid base/, "invalid base";
 
@@ -93,6 +102,7 @@ lives_ok {
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
         options  => { 'size' => 1 },
+        apiKey => '1234',
       )
 } "options";
 
@@ -100,7 +110,8 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
-        handler  => 'raw'
+        handler  => 'raw',
+        apiKey => '1234',
       )
 } "handler raw";
 
@@ -108,7 +119,8 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
-        handler  => 'simple'
+        handler  => 'simple',
+        apiKey => '1234',
       )
 } "handler simple";
 
@@ -116,7 +128,8 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
-        handler  => 'struct'
+        handler  => 'struct',
+        apiKey => '1234',
       )
 } "handler struct";
 
@@ -124,6 +137,7 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => 'wrong'
       )
 } qr/Unable to load handler/, "missing handler";
@@ -132,6 +146,7 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => 12345
       )
 } qr/Invalid handler/, "invalid handler - number";
@@ -140,6 +155,7 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => [ 0, 5 ],
       )
 } qr/Invalid handler/, "invalid handler - array";
@@ -148,6 +164,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => sub { $_[0] }
       )
 } "handler custom";
@@ -156,6 +173,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => Catmandu::Importer::Pure::Parser::raw->new,
       )
 } "handler class invocant";
@@ -164,6 +182,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         handler  => '+Catmandu::Importer::Pure::Parser::raw',
       )
 } "handler class";
@@ -172,12 +191,13 @@ lives_ok {
     $pkg->new(
         base      => $DEFAULT_TEST_BASE,
         endpoint  => 'research-outputs',
+        apiKey => '1234',
         trim_text => 1,
       )
 } "trim text";
 
 my $importer =
-  $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'research-outputs' );
+  $pkg->new( base => $DEFAULT_TEST_BASE, apiKey => '1234', endpoint => 'research-outputs' );
 
 isa_ok( $importer, $pkg );
 can_ok( $importer, 'each' );
@@ -187,7 +207,8 @@ can_ok( $importer, 'count' );
 throws_ok {
     $pkg->new(
         base     => 'https://nothing.nowhere/x/x',
-        endpoint => 'research-outputs'
+        endpoint => 'research-outputs',
+        apiKey => '1234',
       )
 } qr/Invalid base URL/, "invalid base URL";
 
@@ -195,7 +216,8 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
-        timeout  => 'xxx'
+        apiKey => '1234',
+        timeout  => 'xxx',
       )
 } qr/Invalid value for timeout/, "invalid value for timeout";
 
@@ -204,6 +226,7 @@ throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         furl     => 'notfurl'
       )
 } qr/Invalid furl/, "invalid value for furl";
@@ -212,6 +235,7 @@ lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         furl     => Furl->new
       )
 } "furl passed";
@@ -221,6 +245,7 @@ lives_ok {
     $it = $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey => '1234',
         options  => {
             'source' => {
                 'name'  => 'PubMed',
@@ -230,46 +255,48 @@ lives_ok {
       )
 } 'setting of options 1';
 
-is_deeply(
-    $it->options,
-    {
-        'source.name'  => 'PubMed',
-        'source.value' => '19838868,11017075'
-    },
-    'flatting of options - list'
-);
-
-is(
-    $it->url,
-"$DEFAULT_TEST_BASE/research-outputs?source.name=PubMed&source.value=19838868,11017075",
-    "URL method"
-);
+#is_deeply(
+#    $it->options,
+#    {
+#        'source.name'  => 'PubMed',
+#        'source.value' => '19838868,11017075'
+#    },
+#    'flatting of options - list'
+#);
+#
+#is(
+#    $it->url,
+#"$DEFAULT_TEST_BASE/research-outputs?source.name=PubMed&source.value=19838868,11017075",
+#    "URL method"
+#);
 
 lives_ok {
     $it = $pkg->new(
         base     => $DEFAULT_TEST_BASE,
         endpoint => 'research-outputs',
+        apiKey   => '1234',
         options  => {
-            workflowStates => {
-                workflowState => [
-                    { '' => 'approved',  workflowName => 'research-outputs' },
-                    { '' => 'validated', workflowName => 'research-outputs' },
-                ]
-            }
+            offset => 1000,
+#            workflowStates => {
+#                workflowState => [
+#                    { '' => 'approved',  workflowName => 'research-outputs' },
+#                    { '' => 'validated', workflowName => 'research-outputs' },
+#                ]
+#            }
         }
       )
-} 'setting of options 1';
+} 'setting of options';
 
-is_deeply(
-    $it->options,
-    {
-        'workflowStates.workflowState[0]'              => 'approved',
-        'workflowStates.workflowState[0].workflowName' => 'research-outputs',
-        'workflowStates.workflowState[1]'              => 'validated',
-        'workflowStates.workflowState[1].workflowName' => 'research-outputs',
-    },
-    'flatting of options - workflow array'
-);
+#is_deeply(
+#    $it->options,
+#    {
+#        'workflowStates.workflowState[0]'              => 'approved',
+#        'workflowStates.workflowState[0].workflowName' => 'research-outputs',
+#        'workflowStates.workflowState[1]'              => 'validated',
+#        'workflowStates.workflowState[1].workflowName' => 'research-outputs',
+#    },
+#    'flatting of options - workflow array'
+#);
 
 if ( $ENV{RELEASE_TESTING} ) {
 ############# everything below needs a Pure server

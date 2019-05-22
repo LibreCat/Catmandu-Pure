@@ -30,19 +30,19 @@ my %connect_args = (
     password => $password,
 );
 
-throws_ok { $pkg->new( endpoint => 'publication' ) }
+throws_ok { $pkg->new( endpoint => 'research-outputs' ) }
 qr/Base URL and endpoint are required/, "required argument (base) missing";
 
 throws_ok { $pkg->new( base => $DEFAULT_TEST_BASE ) }
 qr/Base URL and endpoint are required/, "required argument (endpoint) missing";
 
-lives_ok { $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'publication' ) }
+lives_ok { $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'research-outputs' ) }
 "required arguments supplied";
 
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         user     => 'user'
       )
 } qr/Password is needed/, "password missing";
@@ -50,7 +50,7 @@ throws_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         user     => 'user',
         password => 'password'
       )
@@ -59,7 +59,7 @@ lives_ok {
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         filter   => 'invalid'
       )
 } qr/Invalid filter/, "invalid filter";
@@ -67,7 +67,7 @@ throws_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         filter   => sub { 1 }
       )
 } "filter provided";
@@ -75,7 +75,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'person',
+        endpoint => 'persons',
         timeout  => 100
       )
 } "timeout provided";
@@ -83,22 +83,22 @@ lives_ok {
 throws_ok {
     $pkg->new(
         base     => 'notvalid',
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
       )
 } qr/Invalid base/, "invalid base";
 
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
-        options  => { 'window.size' => 1 },
+        endpoint => 'research-outputs',
+        options  => { 'size' => 1 },
       )
 } "options";
 
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => 'raw'
       )
 } "handler raw";
@@ -106,7 +106,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => 'simple'
       )
 } "handler simple";
@@ -114,7 +114,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => 'struct'
       )
 } "handler struct";
@@ -122,7 +122,7 @@ lives_ok {
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => 'wrong'
       )
 } qr/Unable to load handler/, "missing handler";
@@ -130,7 +130,7 @@ throws_ok {
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => 12345
       )
 } qr/Invalid handler/, "invalid handler - number";
@@ -138,7 +138,7 @@ throws_ok {
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => [ 0, 5 ],
       )
 } qr/Invalid handler/, "invalid handler - array";
@@ -146,7 +146,7 @@ throws_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => sub { $_[0] }
       )
 } "handler custom";
@@ -154,7 +154,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => Catmandu::Importer::Pure::Parser::raw->new,
       )
 } "handler class invocant";
@@ -162,7 +162,7 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         handler  => '+Catmandu::Importer::Pure::Parser::raw',
       )
 } "handler class";
@@ -170,13 +170,13 @@ lives_ok {
 lives_ok {
     $pkg->new(
         base      => $DEFAULT_TEST_BASE,
-        endpoint  => 'publication',
+        endpoint  => 'research-outputs',
         trim_text => 1,
       )
 } "trim text";
 
 my $importer =
-  $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'publication' );
+  $pkg->new( base => $DEFAULT_TEST_BASE, endpoint => 'research-outputs' );
 
 isa_ok( $importer, $pkg );
 can_ok( $importer, 'each' );
@@ -186,14 +186,14 @@ can_ok( $importer, 'count' );
 throws_ok {
     $pkg->new(
         base     => 'https://nothing.nowhere/x/x',
-        endpoint => 'publication'
+        endpoint => 'research-outputs'
       )
 } qr/Invalid base URL/, "invalid base URL";
 
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         timeout  => 'xxx'
       )
 } qr/Invalid value for timeout/, "invalid value for timeout";
@@ -202,7 +202,7 @@ throws_ok {
 throws_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         furl     => 'notfurl'
       )
 } qr/Invalid furl/, "invalid value for furl";
@@ -210,7 +210,7 @@ throws_ok {
 lives_ok {
     $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         furl     => Furl->new
       )
 } "furl passed";
@@ -219,7 +219,7 @@ my $it;
 lives_ok {
     $it = $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         options  => {
             'source' => {
                 'name'  => 'PubMed',
@@ -240,19 +240,19 @@ is_deeply(
 
 is(
     $it->url,
-"$DEFAULT_TEST_BASE/publication?source.name=PubMed&source.value=19838868,11017075",
+"$DEFAULT_TEST_BASE/research-outputs?source.name=PubMed&source.value=19838868,11017075",
     "URL method"
 );
 
 lives_ok {
     $it = $pkg->new(
         base     => $DEFAULT_TEST_BASE,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         options  => {
             workflowStates => {
                 workflowState => [
-                    { '' => 'approved',  workflowName => 'publication' },
-                    { '' => 'validated', workflowName => 'publication' },
+                    { '' => 'approved',  workflowName => 'research-outputs' },
+                    { '' => 'validated', workflowName => 'research-outputs' },
                 ]
             }
         }
@@ -263,9 +263,9 @@ is_deeply(
     $it->options,
     {
         'workflowStates.workflowState[0]'              => 'approved',
-        'workflowStates.workflowState[0].workflowName' => 'publication',
+        'workflowStates.workflowState[0].workflowName' => 'research-outputs',
         'workflowStates.workflowState[1]'              => 'validated',
-        'workflowStates.workflowState[1].workflowName' => 'publication',
+        'workflowStates.workflowState[1].workflowName' => 'research-outputs',
     },
     'flatting of options - workflow array'
 );
@@ -274,7 +274,7 @@ if ( $ENV{RELEASE_TESTING} ) {
 ############# everything below needs a Pure server
 
     #Test get results
-    my $rec = eval { $pkg->new( %connect_args, endpoint => 'publication' )->first };
+    my $rec = eval { $pkg->new( %connect_args, endpoint => 'research-outputs' )->first };
     ok( !$@ && $rec, "get results" )
       or BAIL_OUT "Failed to get any results from base URL $connect_args{base}"
       . ( $connect_args{user} ? "(user=$connect_args{user})" : '' );
@@ -282,7 +282,7 @@ if ( $ENV{RELEASE_TESTING} ) {
     my %bad_base = %connect_args;
     $bad_base{base} =~ s|/rest|/xrest|;
     
-    throws_ok { $pkg->new( %bad_base, endpoint => 'person' )->first }
+    throws_ok { $pkg->new( %bad_base, endpoint => 'persons' )->first }
     qr/Status code: 405/, "invalid base path";
     
     #Check REST errors
@@ -292,8 +292,8 @@ if ( $ENV{RELEASE_TESTING} ) {
     throws_ok {
         $pkg->new(
             %connect_args,
-            endpoint => 'publication',
-            options  => { 'window.size' => 'a10' }
+            endpoint => 'research-outputs',
+            options  => { 'size' => 'a10' }
           )->first
     } qr/Pure REST Error/, "invalid option";
     
@@ -310,8 +310,8 @@ if ( $ENV{RELEASE_TESTING} ) {
     $rec = $pkg->new(
         %connect_args,
         handler  => 'raw',
-        endpoint => 'publication',
-        options  => { 'window.size' => 1 }
+        endpoint => 'research-outputs',
+        options  => { 'size' => 1 }
     )->first;
     
     like( $rec, qr/^</, "raw handler" );
@@ -319,8 +319,8 @@ if ( $ENV{RELEASE_TESTING} ) {
     $rec = $pkg->new(
         %connect_args,
         handler  => 'struct',
-        endpoint => 'publication',
-        options  => { 'window.size' => 1 }
+        endpoint => 'research-outputs',
+        options  => { 'size' => 1 }
     )->first;
     
     ok( $rec->[0] && $rec->[0] eq 'core:content', 'struct handler' );
@@ -328,8 +328,8 @@ if ( $ENV{RELEASE_TESTING} ) {
     $rec = $pkg->new(
         %connect_args,
         handler  => sub             { 'success' },
-        endpoint => 'publication',
-        options  => { 'window.size' => 1 }
+        endpoint => 'research-outputs',
+        options  => { 'size' => 1 }
     )->first;
     
     is( $rec, 'success', "custom handler" );
@@ -337,7 +337,7 @@ if ( $ENV{RELEASE_TESTING} ) {
     #Test empty response
     my $count = $pkg->new(
         %connect_args,
-        endpoint => 'publication',
+        endpoint => 'research-outputs',
         options  => { searchString => '(sdfkjasewrwe)' }
     )->count;
     
@@ -357,7 +357,7 @@ if ( $ENV{RELEASE_TESTING} ) {
         %connect_args,
         endpoint     => 'organisation',
         fullResponse => 1,
-        options      => { 'window.size' => 0 }
+        options      => { 'size' => 0 }
     )->first->{GetOrganisationResponse}[0]{count};
     ok( $count > 1, 'count organizations' );
     
@@ -384,7 +384,7 @@ if ( $ENV{RELEASE_TESTING} ) {
     $rec = $pkg->new(
         %connect_args,
         endpoint => 'organisation',
-        options  => { 'window.size' => 1 }
+        options  => { 'size' => 1 }
     )->first;    # size
     
     ok( $rec->{content}, 'endpoint organisation' );
@@ -415,7 +415,7 @@ if ( $ENV{RELEASE_TESTING} ) {
     my $recs = $pkg->new(
         %connect_args,
         endpoint => 'organisation',
-        options  => { 'window.size' => 1 }
+        options  => { 'size' => 1 }
     )->slice( 0, 2 )->to_array;
     
     ok(

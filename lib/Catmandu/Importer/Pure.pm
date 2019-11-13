@@ -293,6 +293,7 @@ sub _hashify {
     }
 
     my $next_url = $xc->findvalue('/result/navigationLink[@ref="next"]/@href');
+    $next_url =~ s/&amp;/&/g if $next_url;
     $out->{next_url} = $next_url if $next_url;
 ;
     $out->{count} = $xc->findvalue("/result/count");# || 1;

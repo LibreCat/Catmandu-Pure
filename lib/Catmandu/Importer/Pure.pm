@@ -11,8 +11,6 @@ use XML::LibXML;
 use XML::LibXML::XPathContext;
 use Data::Validate::URI qw(is_web_uri);
 use Scalar::Util qw(blessed);
-#use XML::Hash::XS;
-#use YAML::Dump qw<Dump>;
 
 our $VERSION = '0.02';
 
@@ -292,17 +290,21 @@ sub _hashify {
         return $out;
     }
 
-    my $next_url = $xc->findvalue('/result/navigationLink[@ref="next"]/@href');
+    my $next_url = $xc->findvalue('/result/navigationLink[@ref="next"]/@href|/result/navigationLinks/navigationLink[@ref="next"]/@href');
     $next_url =~ s/&amp;/&/g if $next_url;
     $out->{next_url} = $next_url if $next_url;
-;
-    $out->{count} = $xc->findvalue("/result/count");# || 1;
 
-    my @result_nodes = $xc->findnodes(
-        $self->endpoint eq 'changes'
-        ? '/result/contentChange'
-        : '/result/*[@uuid]'
-    ) unless  $self->fullResponse;
+    $out->{count} = $xc->findvalue("/result/count");
+
+    my @result_nodes;
+
+    if ( $xc->exists('/result/items') ) {
+        @result_nodes = $xc->findnodes('/result/items/*');
+    } elsif ($self->endpoint eq 'changes') {
+        @result_nodes = $xc->findnodes('/result/contentChange');
+    } else {
+        @result_nodes = $xc->findnodes('/result/*[@uuid]');
+    };
 
     if ( $self->fullResponse ) {
         $out->{results} = [$root];
@@ -389,8 +391,9 @@ TODO: add options
 =head1 DESCRIPTION
 
   Catmandu::Importer::Pure is a Catmandu package that seamlessly imports data from Elsevier's Pure system using its REST service.
-  In order to use the Pure Web Service you need an API key. List of all available endpoints and further documentation can currently be found
-  under /ws on a webserver that is running Pure. 
+  In order to use the Pure Web Service you need an API key. List of all available endpoints and further documentation can currently
+  be found under /ws on a webserver that is running Pure. Note that this version of the importer is tested with Pure API version
+  5.18 and might not work with later versions.
 
 =head1 CONFIGURATION
 
@@ -398,7 +401,7 @@ TODO: add options
 
 =item base
 
-Base URL for the REST service is required, for example 'http://purehost.com/ws/api/514'
+Base URL for the REST service is required, for example 'http://purehost.com/ws/api/518'
 
 =item endpoint
 

@@ -12,7 +12,7 @@ use XML::LibXML::XPathContext;
 use Data::Validate::URI qw(is_web_uri);
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 with 'Catmandu::Importer';
 

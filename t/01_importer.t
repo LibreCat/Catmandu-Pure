@@ -10,25 +10,26 @@ BEGIN {
     use_ok $pkg or BAIL_OUT "Can't load $pkg";
 }
 
-my $DEFAULT_TEST_BASE = 'http://experts-us.demo.atira.dk/ws/rest';
+my $DEFAULT_TEST_BASE = 'http://notapurehost.com/ws/rest';
 
 my $base_url = $ENV{PURE_BASE};
 my $user     = $ENV{PURE_USER};
 my $password = $ENV{PURE_PASSWORD};
+my $apiKey   = $ENV{PURE_APIKEY};
 
 if ( !$base_url ) {
     $base_url = $DEFAULT_TEST_BASE;
 
-    # note "Using default base '$base_url' for testing. This can be changed by
-    # setting the environment variable PURE_BASE, and also if needed PURE_USER
-    # and PURE_PASSWORD.";
+    # Note "Using default base '$base_url' for testing. This can be changed by
+    # setting the environment variable PURE_BASE. PURE_APIKEY needs also to be set
+    # and possibly also PURE_USER and PURE_PASSWORD.";
 }
 
 my %connect_args = (
     base     => $base_url,
-    apiKey   => '324320-34324',
-#    user     => $user,
-#    password => $password,
+    apiKey   => $apiKey,
+    user     => $user,
+    password => $password,
 );
 
 throws_ok { $pkg->new( endpoint => 'research-outputs', apiKey => '1234' ) }
@@ -255,21 +256,6 @@ lives_ok {
       )
 } 'setting of options 1';
 
-#is_deeply(
-#    $it->options,
-#    {
-#        'source.name'  => 'PubMed',
-#        'source.value' => '19838868,11017075'
-#    },
-#    'flatting of options - list'
-#);
-#
-#is(
-#    $it->url,
-#"$DEFAULT_TEST_BASE/research-outputs?source.name=PubMed&source.value=19838868,11017075",
-#    "URL method"
-#);
-
 lives_ok {
     $it = $pkg->new(
         base     => $DEFAULT_TEST_BASE,
@@ -277,26 +263,9 @@ lives_ok {
         apiKey   => '1234',
         options  => {
             offset => 1000,
-#            workflowStates => {
-#                workflowState => [
-#                    { '' => 'approved',  workflowName => 'research-outputs' },
-#                    { '' => 'validated', workflowName => 'research-outputs' },
-#                ]
-#            }
         }
       )
-} 'setting of options';
-
-#is_deeply(
-#    $it->options,
-#    {
-#        'workflowStates.workflowState[0]'              => 'approved',
-#        'workflowStates.workflowState[0].workflowName' => 'research-outputs',
-#        'workflowStates.workflowState[1]'              => 'validated',
-#        'workflowStates.workflowState[1].workflowName' => 'research-outputs',
-#    },
-#    'flatting of options - workflow array'
-#);
+} 'setting of options 2';
 
 if ( $ENV{RELEASE_TESTING} ) {
 ############# everything below needs a Pure server
@@ -308,10 +277,18 @@ if ( $ENV{RELEASE_TESTING} ) {
       . ( $connect_args{user} ? "(user=$connect_args{user})" : '' );
     
     my %bad_base = %connect_args;
-    $bad_base{base} =~ s|/rest|/xrest|;
+    $bad_base{base} .= '/invalid/invalid';
     
     throws_ok { $pkg->new( %bad_base, endpoint => 'persons' )->first }
-    qr/Status code: 405/, "invalid base path";
+    qr/HTTP 404 Not Found/, "invalid base path";
+
+    throws_ok {
+        $pkg->new(
+            %connect_args,
+            apiKey => 'wrong key',
+            endpoint => 'research-outputs',
+          )->first
+    } qr/Status code: 401/, "invalid API key";
     
     #Check REST errors
     throws_ok { $pkg->new( %connect_args, endpoint => '_nothing_' )->first }
@@ -325,14 +302,6 @@ if ( $ENV{RELEASE_TESTING} ) {
           )->first
     } qr/Pure REST Error/, "invalid option";
     
-    throws_ok {
-        $pkg->new(
-            %connect_args,
-            user     => undef,
-            password => undef,
-            endpoint => 'uploaddownloadinformationrequest.current'
-          )->first
-    } qr/Pure REST Error/, "Needs authentication";
     
     #Test handlers
     $rec = $pkg->new(
@@ -347,15 +316,15 @@ if ( $ENV{RELEASE_TESTING} ) {
     $rec = $pkg->new(
         %connect_args,
         handler  => 'struct',
-        endpoint => 'research-outputs',
+        endpoint => 'persons',
         options  => { 'size' => 1 }
     )->first;
     
-    ok( $rec->[0] && $rec->[0] eq 'core:content', 'struct handler' );
+    ok( $rec->[0] && $rec->[0] eq 'person', 'struct handler' );
     
     $rec = $pkg->new(
         %connect_args,
-        handler  => sub             { 'success' },
+        handler  => sub { 'success' },
         endpoint => 'research-outputs',
         options  => { 'size' => 1 }
     )->first;
@@ -366,92 +335,46 @@ if ( $ENV{RELEASE_TESTING} ) {
     my $count = $pkg->new(
         %connect_args,
         endpoint => 'research-outputs',
-        options  => { searchString => '(sdfkjasewrwe)' }
+        options  => { q => 'sdfkjasewrwe' }
     )->count;
     
     is( $count, 0, "empty results" );
     
     $count = $pkg->new(
         %connect_args,
-        endpoint     => 'organisation',
+        endpoint     => 'organisational-units',
         fullResponse => 1,
-        options      => { window => { offset => 1, 'size' => 2 } }
+        options      => { 'offset' => 1, 'size' => 2 }
     )->count;
     
-    is( $count, 1, 'full response with window offset and size' );
+    is( $count, 1, 'full response with offset and size' );
     
-    # organizationCount
     $count = $pkg->new(
         %connect_args,
-        endpoint     => 'organisation',
+        endpoint     => 'organisational-units',
         fullResponse => 1,
         options      => { 'size' => 0 }
-    )->first->{GetOrganisationResponse}[0]{count};
-    ok( $count > 1, 'count organizations' );
+    )->first->{result}[0]{count};
+    ok( $count > 1, 'count organisations' );
     
     my $offset = $count - 5;
     my $pcount = $pkg->new(
         %connect_args,
-        endpoint => 'organisation',
-        options  => { window => { offset => $offset } }
+        endpoint => 'organisational-units',
+        options  => { offset => $offset }
     )->count;
-    ok( $count == $pcount + $offset, 'get organisations from offset' );
+
+    ok( $count == $pcount + $offset, 'get organisational-units from offset' );
     
-    $count = $pkg->new(
-        %connect_args,
-        endpoint     => 'organisation',
-        fullResponse => 1,
-        options      => { window => { offset => 10, 'size' => 2 } }
-    )->count;
-    
-    is( $count, 1, 'full response with window offset and size' );
-    
-    $rec = $pkg->new( %connect_args, endpoint => 'allowedfamilies' )->first;
-    ok( $rec->{family}, 'endpoint allowedfamilies' );
+    $rec = $pkg->new( %connect_args, endpoint => 'classification-schemes' )->first;
+    ok( $rec->{classificationScheme}, 'endpoint classification-schemes' );
     
     $rec = $pkg->new(
         %connect_args,
-        endpoint => 'organisation',
-        options  => { 'size' => 1 }
-    )->first;    # size
-    
-    ok( $rec->{content}, 'endpoint organisation' );
-    
-    $rec = $pkg->new( %connect_args, endpoint => 'classificationschemes' )->first;
-    
-    ok( $rec->{content}, 'endpoint classificationschemes' );
-    
-    $rec = $pkg->new(
-        %connect_args,
-        endpoint => 'changes.current',
-        options  => { fromDate => '1990-01-22' }
+        endpoint => 'changes',
+        path  => '2002-01-22',
     )->slice( 100, 1 )->first;
-    ok( $rec->{change}, 'endpoint changes.current' );
-    
-    $rec = $pkg->new( %connect_args, endpoint => 'serverMeta', fullResponse => 1 )
-      ->first;
-    ok( $rec->{GetServerMetaResponse}, 'endpoint serverMeta' );
-    
-    #Test filter
-    $rec = $pkg->new(
-        %connect_args,
-        endpoint => 'allowedfamilies',
-        filter   => sub { ${ $_[0] } =~ s/family/myfamily/g }
-    )->first;
-    ok( $rec->{myfamily}, 'endpoint allowedfamilies' );
-    
-    my $recs = $pkg->new(
-        %connect_args,
-        endpoint => 'organisation',
-        options  => { 'size' => 1 }
-    )->slice( 0, 2 )->to_array;
-    
-    ok(
-        $recs->[0]{content}
-          && $recs->[1]{content}
-          && ( $recs->[0]{content}[0]{uuid} ne $recs->[1]{content}[0]{uuid} ),
-        'multi-requests'
-    );
+    ok( $rec->{contentChange}, 'endpoint changes' );
 }
 
 done_testing;

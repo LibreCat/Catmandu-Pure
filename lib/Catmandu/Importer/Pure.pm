@@ -84,8 +84,11 @@ sub BUILD {
     if ( !$self->fullResponse && $self->post_xml ) {
         if ( $options->{offset} ||  $options->{page} ||
             (defined $options->{size} && $options->{size}==0) )  {
-            $self->fullResponse(1);
+            $self->{fullResponse} = 1;
         }
+    }
+    if ( !$self->fullResponse && $options->{offset} ) {
+        $self->{_start} = $options->{offset};
     }
 }
 

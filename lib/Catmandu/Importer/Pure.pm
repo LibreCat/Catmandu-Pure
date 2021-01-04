@@ -391,7 +391,7 @@ sub generator {
       . '  <workflowStep>validated</workflowStep>'
       . '</workflowSteps>'
       . '</researchOutputsQuery>'
-  )->first->{result}[0]{count};
+  )->first->{count};
 
 =head1 DESCRIPTION
 
@@ -488,7 +488,7 @@ user input. Note that there is a small performance penalty when using this optio
 =item filter( sub {} )
 
 Optional reference to function that processes the XML response before it is parsed. The argument to the function is a reference to the XML text,
-which is then used to modify it. This is option is normally not needed but can helpful if there is a problem parsing the response due to a bug
+which is then used to modify it. This option is normally not needed but can helpful if there is a problem parsing the response due to a bug
 in the REST service.
 
 =back

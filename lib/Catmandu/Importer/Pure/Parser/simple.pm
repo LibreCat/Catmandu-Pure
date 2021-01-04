@@ -12,7 +12,7 @@ sub parse {
     my ($self, $dom) = @_;
 
     $self->xmlsimple->XMLin(
-        $dom , KeepRoot => 1, ForceArray => 1, NsStrip => 1, KeyAttr => []);
+        $dom , KeepRoot => 0, ForceArray => 1, NsStrip => 1, KeyAttr => []);
 }
 
 1;

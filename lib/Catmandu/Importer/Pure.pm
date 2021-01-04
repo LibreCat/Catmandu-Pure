@@ -299,6 +299,11 @@ sub _hashify {
 
     $out->{count} = $xc->findvalue("/result/count");
 
+    if ( $self->fullResponse ) {
+        $out->{results} = [$root];
+        return $out;
+    }
+
     my @result_nodes;
 
     if ( $xc->exists('/result/items') ) {
@@ -308,11 +313,6 @@ sub _hashify {
     } else {
         @result_nodes = $xc->findnodes('/result/*[@uuid]');
     };
-
-    if ( $self->fullResponse ) {
-        $out->{results} = [$root];
-        return $out;
-    }
 
     $out->{results} = \@result_nodes;
 
